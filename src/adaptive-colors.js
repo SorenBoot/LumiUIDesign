@@ -174,7 +174,7 @@ export function buildPalette({ dark = false, seed = null, custom = false, preset
     '--nav-track': rgba(surfaceSoft, custom ? .91 : .87), '--nav-selected': colors.navSelected, '--nav-selected-text': colors.navSelectedText,
     '--text': colors.text, '--secondary': colors.secondary, '--muted': colors.muted,
     '--line': rgba(text, dark ? .12 : .13), '--control-border': colors.border,
-    '--accent': colors.accent, '--accent-soft': colors.accentSoft,
+    '--accent': colors.accent, '--accent-soft': colors.accentSoft, '--on-accent': hex(ensureContrast(dark ? hsl(hue, .08, .13) : [255, 255, 255], [accent], 4.5, !dark)), '--segmented-selected': dark ? hex(hsl(hue, neutralSaturation, .26)) : '#ffffff',
     '--accent-ink': colors.navSelectedText,
     '--bubble': rgba(surface, bubbleAlpha), '--bubble-user': rgba(userSurface, .97),
     '--primary-bg': colors.primary, '--primary-text': colors.primaryText,

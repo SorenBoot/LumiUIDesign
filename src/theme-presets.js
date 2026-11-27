@@ -3,8 +3,8 @@ const lumiDark={surface:'#2a303c',soft:'#222936',accent:'#b8cbdc',user:'#4f5b6f'
 const lumiLight={surface:'#f6f5f2',soft:'#e5e7eb',accent:'#46647f',user:'#d4dce6'};
 const lumiThemes=[
   {id:'ember',family:'lumi',name:'墨夜琥珀',description:'暖墨 · 纸白 · 单一琥珀强调',mode:'dark',hue:30,
-    dark:{surface:'#24252a',soft:'#1c1d21',accent:'#eaa95e',user:'#33343a',page:'#141518',scene:['#141518','#17181c','#1b1a1a'],glow:['#262c38','#7a4f26'],panel:'#1f2024',home:'#1d1e22',floating:'#26272c',bubble:'#202125',text:'#efece6',accentSoft:'#3b3024',infoSurface:'#2b2a28',infoText:'#e3cfb2',navTrack:'#0c0c0e'},
-    light:{surface:'#ffffff',soft:'#efece6',accent:'#a4561a',user:'#ece5da',page:'#f6f4ef',scene:['#f6f4ef','#f4f1eb','#f1ece3'],glow:['#e9e5de','#f2d2a8'],primary:'#1d1e22',text:'#1d1e22',accentSoft:'#f2e4d2',infoSurface:'#f1ebe2',infoText:'#7a4a1e',navTrack:'#3a3530'}},
+    dark:{surface:'#24252a',soft:'#1c1d21',accent:'#eaa95e',user:'#33343a',page:'#141518',scene:['#141518','#17181c','#1b1a1a'],glow:['#262c38','#7a4f26'],panel:'#1f2024',home:'#1d1e22',floating:'#26272c',bubble:'#202125',text:'#efece6',accentSoft:'#3b3024',infoSurface:'#2b2a28',infoText:'#e3cfb2',navTrack:'#0c0c0e',secondary:'#d8d2c8',muted:'#b8b0a4',canvasMuted:'#c9c1b5',border:'#857d72'},
+    light:{surface:'#ffffff',soft:'#efece6',accent:'#a4561a',user:'#ece5da',page:'#f6f4ef',scene:['#f6f4ef','#f4f1eb','#f1ece3'],glow:['#e9e5de','#f2d2a8'],primary:'#1d1e22',text:'#1d1e22',accentSoft:'#f2e4d2',infoSurface:'#f1ebe2',infoText:'#7a4a1e',navTrack:'#3a3530',secondary:'#4b463f',muted:'#6a6359',canvasMuted:'#5c554b',border:'#9a9184'}},
   {id:'lumi',family:'lumi',name:'雾蓝暖光',description:'蓝灰 · 石墨 · 暖金',mode:'dark',hue:218,
     dark:{...lumiDark,page:'#354257',scene:['#354257','#3c4558','#4c505a'],glow:['#667f9f','#b4916c']},
     light:{...lumiLight,page:'#d9dfe7',scene:['#d9dfe7','#e2e3e5','#e9e6e2'],glow:['#b6c8dc','#e1c59e']}},

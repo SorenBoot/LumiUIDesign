@@ -25,20 +25,20 @@ export function buildLumiPalette(preset,dark,background){
   const weatherColors=['#9aa8c0','#e5e8ed','#6783a5','#a4c1de','#a4b0bb'].map(rgb);
   const canvasBounds=bounds.flatMap(bound=>[bound,...weatherColors.map(color=>mix(color,bound,.035))]);
   canvasBounds.push(...canvasBounds.map(bound=>mix(dark?[230,235,242]:[39,47,61],bound,dark?.055:.045)));
-  const text=rgb(v.text||(dark?'#f1f1ef':'#292f39')),secondary=rgb(dark?'#d2d6dd':'#4d5663');
+  const text=rgb(v.text||(dark?'#f1f1ef':'#292f39')),secondary=rgb(v.secondary||(dark?'#d2d6dd':'#4d5663'));
   const panelBase=rgb(v.panel||(dark?'#1e2530':'#fafaf9')),homeBase=rgb(v.home||(dark?'#1b212b':'#fcfbf8'));
   const floatingBase=rgb(v.floating||(dark?'#222833':'#ffffff')),bubbleBase=rgb(v.bubble||(dark?'#1d232e':'#ffffff')),user=rgb(v.user);
   const panelAlpha=dark?.88:.91,homeAlpha=dark?.76:.89,floatingAlpha=dark?.96:.97,bubbleAlpha=dark?.87:.94;
   const contentBackgrounds=[surface,soft,...canvasBounds.flatMap(bg=>[mix(panelBase,bg,panelAlpha),mix(homeBase,bg,homeAlpha),mix(bubbleBase,bg,bubbleAlpha),mix(floatingBase,bg,floatingAlpha)])];
-  const muted=readable(rgb(dark?'#bac2cf':'#596370'),contentBackgrounds,dark);
-  const canvasText=readable(text,canvasBounds,dark),canvasMuted=readable(rgb(dark?'#c6cdd7':'#535e6d'),canvasBounds,dark);
+  const muted=readable(rgb(v.muted||(dark?'#bac2cf':'#596370')),contentBackgrounds,dark);
+  const canvasText=readable(text,canvasBounds,dark),canvasMuted=readable(rgb(v.canvasMuted||(dark?'#c6cdd7':'#535e6d')),canvasBounds,dark);
   const accentSoft=rgb(v.accentSoft||(dark?'#344252':'#e0e8ef')),accent=readable(rgb(v.accent),[...contentBackgrounds,accentSoft],dark);
   const brandWarm=readable(rgb(dark?'#e4c59b':'#765830'),contentBackgrounds,dark);
   const canvasWarm=readable(rgb(dark?'#e4c59b':'#765830'),canvasBounds,dark);
   const primary=rgb(v.primary||(dark?'#efede7':'#35475a')),primaryText=readable(rgb(dark?'#2e3239':'#ffffff'),[primary],!dark,7);
   const navSelected=rgb(dark?'#f0ede7':'#ffffff'),navSelectedText=rgb('#292f39');
   const infoSurface=rgb(v.infoSurface||(dark?'#28394d':'#e5edf6')),infoText=rgb(v.infoText||(dark?'#a6c7f1':'#315b87'));
-  const border=readable(rgb(dark?'#778392':'#82909d'),[surface,soft],dark,3.1);
+  const border=readable(rgb(v.border||(dark?'#778392':'#82909d')),[surface,soft],dark,3.1);
   const status=dark?{success:{text:'#a8d7bb',surface:'#21372c'},warning:{text:'#e8cc94',surface:'#3c3220'},error:{text:'#f0adb1',surface:'#40272c'}}:{success:{text:'#28613e',surface:'#e9f2ec'},warning:{text:'#73551f',surface:'#f5eedf'},error:{text:'#963f47',surface:'#f8e9eb'}};
   const colors=Object.fromEntries(Object.entries({surface,surfaceSoft:soft,page,text,secondary,muted,accent,accentSoft,userSurface:user,primary,primaryText,navSelected,navSelectedText,infoSurface,infoText,border,brandWarm,canvasWarm,canvasText,canvasMuted}).map(([key,value])=>[key,hex(value)]));
   colors.buttonPrimary=colors.primary;colors.buttonPrimaryText=colors.primaryText;
@@ -49,7 +49,7 @@ export function buildLumiPalette(preset,dark,background){
     '--nav-selected':colors.navSelected,'--nav-selected-text':colors.navSelectedText,
     '--text':colors.text,'--secondary':colors.secondary,'--muted':colors.muted,'--canvas-ink':colors.canvasText,'--canvas-muted':colors.canvasMuted,
     '--line':dark?'rgba(208,220,238,.14)':'rgba(67,77,93,.16)','--control-border':colors.border,
-    '--accent':colors.accent,'--accent-soft':colors.accentSoft,'--accent-ink':colors.navSelectedText,'--brand-warm':colors.brandWarm,'--canvas-warm':colors.canvasWarm,
+    '--accent':colors.accent,'--accent-soft':colors.accentSoft,'--on-accent':hex(readable(rgb(dark?'#17130d':'#ffffff'),[accent],!dark,4.5)),'--segmented-selected':dark?hex(mix(text,surface,.16)):'#ffffff','--accent-ink':colors.navSelectedText,'--brand-warm':colors.brandWarm,'--canvas-warm':colors.canvasWarm,
     '--bubble':rgba(bubbleBase,bubbleAlpha),'--bubble-user':rgba(user,dark?.94:.97),'--primary-bg':colors.primary,'--primary-text':colors.primaryText,'--primary-fill':colors.primary,'--primary-ink':colors.primaryText,
     '--info-text':colors.infoText,'--info-surface':colors.infoSurface,
     ...Object.fromEntries(Object.entries(status).flatMap(([name,pair])=>[[`--status-${name}-text`,pair.text],[`--status-${name}-surface`,pair.surface]])),
@@ -59,7 +59,7 @@ export function buildLumiPalette(preset,dark,background){
     '--panel-shadow-hover':dark?'0 3px 8px #10172330,0 22px 48px -22px #0c17247a':'0 3px 8px #1522380a,0 22px 44px -22px #17243e55'
   };
   const antd={colorPrimary:colors.accent,colorPrimaryBg:colors.accentSoft,colorLink:colors.accent,colorLinkHover:colors.accent,colorLinkActive:colors.accent,colorText:colors.text,colorTextSecondary:colors.secondary,colorTextTertiary:colors.muted,colorTextPlaceholder:colors.muted,colorTextLightSolid:dark?colors.primaryText:'#ffffff',colorBgLayout:colors.page,colorBgElevated:colors.surface,colorBgContainer:colors.surface,colorBorder:colors.border,colorBorderSecondary:vars['--line'],colorFillSecondary:colors.surfaceSoft,colorFillTertiary:colors.surfaceSoft,colorInfo:colors.infoText,colorInfoBg:colors.infoSurface,...Object.fromEntries(Object.entries(status).flatMap(([name,pair])=>{const role=name[0].toUpperCase()+name.slice(1);return [[`color${role}`,pair.text],[`color${role}Bg`,pair.surface],[`color${role}Border`,hex(mix(rgb(pair.text),rgb(pair.surface),.4))]]}))};
-  const components={Button:{primaryShadow:'none',defaultShadow:'none',colorPrimary:colors.primary,colorPrimaryHover:hex(mix(dark?[255,255,255]:[0,0,0],primary,.08)),colorPrimaryActive:hex(mix(dark?[0,0,0]:[255,255,255],primary,.08)),primaryColor:colors.primaryText},Select:{optionSelectedBg:colors.accentSoft},Segmented:{trackBg:colors.surfaceSoft,itemSelectedBg:dark?'#404a58':'#ffffff'},Tooltip:{colorBgSpotlight:dark?'#edf0f3':'#24282e',colorTextLightSolid:dark?'#24282e':'#ffffff'}};
+  const components={Button:{primaryShadow:'none',defaultShadow:'none',colorPrimary:colors.primary,colorPrimaryHover:hex(mix(dark?[255,255,255]:[0,0,0],primary,.08)),colorPrimaryActive:hex(mix(dark?[0,0,0]:[255,255,255],primary,.08)),primaryColor:colors.primaryText},Select:{optionSelectedBg:colors.accentSoft},Segmented:{trackBg:colors.surfaceSoft,itemSelectedBg:dark?hex(mix(text,surface,.16)):'#ffffff'},Tooltip:{colorBgSpotlight:dark?'#edf0f3':'#24282e',colorTextLightSolid:dark?'#24282e':'#ffffff'}};
   const pairs=[['body / surface',text,surface],['secondary / surface',secondary,surface],['accent / selected',accent,accentSoft],['primary action',primaryText,primary],['selected navigation',navSelectedText,navSelected],['information label',infoText,infoSurface],['message / user',text,mix(user,canvasBounds[0],dark?.94:.97)],...contentBackgrounds.flatMap((bg,i)=>[['muted / content '+i,muted,bg],['body / content '+i,text,bg],['brand / content '+i,brandWarm,bg]]),...canvasBounds.flatMap((bg,i)=>[['canvas body / bound '+i,canvasText,bg],['canvas muted / bound '+i,canvasMuted,bg],['canvas warm / bound '+i,canvasWarm,bg]]),...Object.entries(status).map(([name,pair])=>[`${name} status`,rgb(pair.text),rgb(pair.surface)])];
   return {vars,antd,components,colors,diagnostics:{dark,custom:false,hue:preset.hue,washAlpha:0,sourceSampleCount:0,note:'Lumi bounds include alpha intervals for fixed/moving gradients, the family weather overlays and translucent summary controls. Content and canvas use separate text and warm roles.',pairs:pairs.map(([role,fg,bg])=>({role,foreground:hex(fg),background:hex(bg),contrast:+contrast(fg,bg).toFixed(3),minimum:4.5}))}};
 }

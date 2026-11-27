@@ -1,0 +1,33 @@
+/* Cross-theme pass: every preset, light and dark, plus wallpaper auto-adapt. Colors come from palette roles only. */
+/* Text that sits directly on the canvas uses the canvas-safe role (lumi family) or secondary (other presets). */
+.ref54-app .l54-version.ant-btn{opacity:1;color:var(--canvas-muted,var(--secondary))}
+.h54-light-home .h54-light-disclaimer{color:var(--canvas-muted,var(--secondary))}
+.l54-search-label{color:var(--canvas-muted,var(--secondary))}
+.ref54-app .l54-header .ant-btn-text,.ref54-app .l54-header .ant-btn-text .anticon{color:var(--canvas-muted,var(--secondary))}
+/* Decorative separator inherits the capsule's status color instead of fading it below contrast. */
+.c54-capsule-separator{opacity:1;color:inherit}
+/* Segmented controls everywhere (Settings, header, composer) use the theme-derived selected surface. */
+.ref54-app .ant-segmented .ant-segmented-item-selected,
+.ant-modal .ant-segmented .ant-segmented-item-selected,
+.s54-settings .ant-segmented .ant-segmented-item-selected,.s54-settings .ant-segmented .ant-segmented-thumb{background:var(--segmented-selected);color:var(--text)}
+
+/* Settings hierarchy: page title > section label (small, muted) > row label > description. */
+.s54-settings .s54-section{margin:36px 0}
+.s54-settings .s54-section:first-child{margin-top:8px}
+.s54-settings .s54-section-heading,.s54-settings .s54-section h3{font-size:.75rem;font-weight:600;letter-spacing:.06em;color:var(--s54-muted,var(--muted))}
+.s54-settings .s54-section-heading{margin-bottom:2px}
+.s54-settings .s54-row strong{font-size:.875rem;font-weight:550}
+/* Settings sidebar: same selected language as Projects (soft fill + accent inset), neutral hover, centered icons. */
+.s54-sidebar .ant-menu-item{display:flex;align-items:center;gap:10px}
+.ant-menu-inline .ant-menu-item .ant-menu-item-icon{display:inline-flex;align-items:center;justify-content:center;width:16px;font-size:14px;margin:0}
+.ant-menu-inline .ant-menu-item .ant-menu-item-icon+span{margin-inline-start:0}
+.s54-sidebar .ant-menu-item-selected,.ref54-app .ant-menu-item-selected{box-shadow:inset 2px 0 0 var(--accent)}
+.ant-menu-inline .ant-menu-item:not(.ant-menu-item-selected):hover{background:color-mix(in srgb,var(--text) 7%,transparent)!important;color:var(--text)!important}
+/* Focus: one ring language for buttons, segmented items, switches, menu items and preset tiles; fields get a border + halo. */
+.ant-btn:focus-visible,.ant-switch:focus-visible,.ant-menu-item:focus-visible,.s54-preset-tile:focus-visible,.s54-theme-tile:focus-visible,
+.ant-segmented-item:has(input:focus-visible),.ant-checkbox-input:focus-visible+.ant-checkbox-inner{outline:2px solid var(--accent)!important;outline-offset:2px}
+.s54-settings .ant-input-affix-wrapper:focus-within,.s54-settings .ant-input:not(textarea):focus,.s54-settings .ant-select-focused .ant-select-selector,.s54-settings .ant-select-focused.ant-select,.l54-search-modal .ant-input-affix-wrapper:focus-within{border-color:var(--accent)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent)!important}
+/* Fields and buttons share corner radius and a theme-derived border. */
+.s54-settings .ant-input-affix-wrapper,.s54-settings .ant-select-selector,.s54-settings .ant-btn:not(.ant-btn-circle):not(.ant-btn-text){border-radius:10px}
+/* Switch knob takes the primary ink, so it stays visible on light (dark-mode) and dark (light-mode) tracks in every preset. */
+.ant-switch.ant-switch-checked .ant-switch-handle::before{background:var(--primary-ink)}
