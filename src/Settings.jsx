@@ -28,7 +28,7 @@ const modelFixtures = [
 ];
 const assigned = ['lumi'];
 let settingsStore = {
-  appearance:{theme:'dark',styleTheme:'lumi',motion:true,backgroundMotion:true,fontSize:14,background:'theme',weather:'clear',wallpaper:''},
+  appearance:{theme:'dark',styleTheme:'ember',messageStyle:'hybrid',motion:true,backgroundMotion:true,fontSize:14,background:'theme',weather:'clear',wallpaper:''},
   general:{name:'Jason',project:'Lumi Assistant',start:'主页',lang:'简体中文',replyLang:'跟随输入',toolPill:true},
   notifications:{done:true,digest:true,sound:false,quiet:'22:00 – 08:00'},
   models:modelFixtures,providers:providerFixtures,
@@ -202,6 +202,7 @@ export default function Settings({section='account',onSectionChange,onClose,disp
         <div className={`s54-theme-options ${familyPreset?'s54-family-modes':''}`} style={modePreview}>{[['auto','自动适配'],['light','浅色'],['dark','深色'],['system','跟随系统']].map(([v,label])=><button type="button" key={v} className={`s54-theme-tile ${v} ${state.appearance.theme===v?'selected':''}`} aria-pressed={state.appearance.theme===v} onClick={()=>patch('appearance',{theme:v})}><span className="s54-theme-preview" aria-hidden="true"><i/><i/><i/></span><span>{label}{state.appearance.theme===v&&<CheckCircleOutlined/>}</span></button>)}</div>
       </Section>
       <Section title="显示">
+        <Row label="消息样式" description={({classic:'双方都用气泡；Lumi 的长回复按段落拆成连续气泡',hybrid:'Lumi 的回复为纯文本，你的消息保留气泡（默认）',plain:'全部为纯文本，信息密度最高'})[state.appearance.messageStyle||'hybrid']}><Segmented aria-label="消息样式" value={state.appearance.messageStyle||'hybrid'} options={[{value:'classic',label:'经典气泡'},{value:'hybrid',label:'混合'},{value:'plain',label:'纯文本'}]} onChange={messageStyle=>patch('appearance',{messageStyle})}/></Row>
         <Row label="字号"><Segmented aria-label="界面字号" value={state.appearance.fontSize} options={[{value:14,label:'标准'},{value:16,label:'较大'}]} onChange={fontSize=>patch('appearance',{fontSize})}/></Row>
         <Row label="界面动效" description="开启时仍遵循系统减少动态偏好"><Switch aria-label="界面动效" checked={state.appearance.motion} onChange={motion=>patch('appearance',{motion})}/></Row>
         <Row label="背景动效" description={state.appearance.background==='custom'?'图片背景保持静止':selected==='classic'?'选择新增主题后，可开启缓慢流动的背景光影':systemReducedMotion?'系统已开启减少动态，当前显示静态背景':!state.appearance.motion?'界面动效已关闭，当前显示静态背景':'仅背景光影缓慢流动，文字和面板保持稳定'}><Switch aria-label="背景动效" checked={state.appearance.backgroundMotion!==false} disabled={selected==='classic'||state.appearance.background==='custom'} onChange={backgroundMotion=>patch('appearance',{backgroundMotion})}/></Row>

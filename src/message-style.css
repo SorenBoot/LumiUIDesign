@@ -1,0 +1,71 @@
+/* Message style: one chat tree, three looks. Settings sets <html data-message-style>;
+   only the tokens below change. Rules further down read tokens and never branch. */
+:root{
+  /* hybrid (default): Lumi as text on the canvas, your turns as bubbles */
+  --msg-ai-bg:transparent;--msg-ai-ring:transparent;--msg-ai-pad:2px 0;--msg-ai-radius:0;--msg-ai-maxw:660px;
+  --msg-chunk-bg:transparent;--msg-chunk-ring:transparent;--msg-chunk-pad:0;--msg-chunk-radius:0;--msg-chunk-gap:0px;
+  --msg-user-bg:var(--surface);--msg-user-ring:var(--line);--msg-user-pad:10px 16px;--msg-user-radius:20px 20px 6px 20px;
+  --msg-user-align:flex-end;--msg-user-maxw:min(78%,540px);--msg-user-rule:transparent;--msg-user-rule-w:0px;--msg-user-color:var(--text);
+  --msg-gap:28px;--msg-line:1.8;
+  /* spacing hierarchy: chunk < segment (same speaker, consecutive) << turn (speaker changes) */
+  --msg-turn-gap:40px;--msg-segment-gap:14px;--msg-chunk-join:0px;
+}
+:root[data-message-style=classic]{
+  /* both sides in bubbles; each block of a long reply becomes its own card */
+  --msg-ai-pad:0;--msg-ai-maxw:620px;
+  --msg-chunk-bg:var(--bubble);--msg-chunk-ring:var(--line);--msg-chunk-pad:11px 16px;--msg-chunk-radius:18px;--msg-chunk-gap:7px;--msg-chunk-join:6px;--msg-segment-gap:7px;--msg-turn-gap:40px;
+  --msg-user-bg:var(--surface);--msg-user-radius:20px;--msg-gap:22px;--msg-line:1.7;
+}
+:root[data-message-style=plain]{
+  /* everything flat; your turns marked by a hairline rule, not a fill */
+  --msg-user-bg:transparent;--msg-user-ring:transparent;--msg-user-pad:0 0 0 12px;--msg-user-radius:0;
+  --msg-user-align:flex-start;--msg-user-maxw:min(100%,660px);--msg-user-rule:var(--muted);--msg-user-rule-w:2px;--msg-user-color:var(--text);--msg-user-weight:500;--msg-user-elbow:none;
+  --msg-gap:20px;--msg-line:1.75;
+  --msg-turn-gap:32px;--msg-segment-gap:12px;
+}
+
+/* --- rules (token consumers) --- */
+.ref54-app .c54-message{margin-bottom:var(--msg-gap)}
+.ref54-app .c54-message.is-assistant>.c54-message-surface{background:var(--msg-ai-bg);box-shadow:0 0 0 1px var(--msg-ai-ring);backdrop-filter:none;padding:var(--msg-ai-pad);border-radius:var(--msg-ai-radius);max-width:min(100%,var(--msg-ai-maxw));font-size:15px;line-height:var(--msg-line);display:flex;flex-direction:column;align-items:flex-start;gap:var(--msg-chunk-gap)}
+/* Chunks: paragraphs, the list, the closing line. Transparent unless the style gives them a card. */
+.ref54-app .c54-message.is-assistant>.c54-message-surface>.c54-prose{display:contents}
+.ref54-app .c54-message.is-assistant>.c54-message-surface>.c54-prose>p,
+.ref54-app .c54-message.is-assistant>.c54-message-surface>.c54-prose-list,
+.ref54-app .c54-message.is-assistant>.c54-message-surface>.c54-message-after{margin:0;background:var(--msg-chunk-bg);box-shadow:0 0 0 1px var(--msg-chunk-ring);padding:var(--msg-chunk-pad);border-radius:var(--msg-chunk-radius);max-width:100%}
+.ref54-app .c54-message.is-assistant>.c54-message-surface>.c54-prose-list{padding-left:calc(1.1em + var(--msg-chunk-pad-x,0px))}
+:root[data-message-style=classic]{--msg-chunk-pad-x:16px}
+.ref54-app .c54-message.is-assistant>.c54-message-surface>.c54-prose>p+p{margin-top:0}
+/* Keep the paragraph rhythm when chunks are not cards. */
+:root:not([data-message-style=classic]) .ref54-app .c54-message.is-assistant>.c54-message-surface{gap:.55em}
+.ref54-app .c54-message.is-user{align-items:var(--msg-user-align)}
+.ref54-app .c54-message.is-user>.c54-message-surface{background:var(--msg-user-bg);box-shadow:0 0 0 1px var(--msg-user-ring),inset var(--msg-user-rule-w) 0 0 var(--msg-user-rule);border-radius:var(--msg-user-radius);padding:var(--msg-user-pad);max-width:var(--msg-user-maxw);color:var(--msg-user-color)}
+.ref54-app .c54-message.is-user>.c54-actions-reveal{align-self:var(--msg-user-align)}
+.ref54-app .c54-message.is-user>.c54-quote-ghost{align-self:var(--msg-user-align)}
+/* Actions: a footer row under the message. Desktop reveals it on hover or keyboard focus; the latest reply keeps it
+   pinned; touch opens it with a long press (existing MessageRow behaviour). Flat styles align it with the text edge. */
+.ref54-app .c54-message.is-assistant>.c54-actions-reveal{margin-left:calc(var(--msg-chunk-gap) * 0 - 6px)}
+.ref54-app .c54-message-actions .ant-btn.is-rated{color:var(--accent)}
+/* Plain: your turns read slightly heavier than Lumi's; the quote elbow (a bubble-tail cue) is dropped. */
+.ref54-app .c54-message.is-user>.c54-message-surface{font-weight:var(--msg-user-weight,400)}
+.ref54-app .c54-message.is-user .c54-quote-elbow{display:var(--msg-user-elbow,block)}
+
+/* --- spacing hierarchy --- */
+.ref54-app .c54-thread .c54-message{margin-block-end:var(--msg-turn-gap)}
+.ref54-app .c54-thread .c54-message.is-assistant:has(+ .c54-message.is-assistant),
+.ref54-app .c54-thread .c54-message.is-user:has(+ .c54-message.is-user){margin-block-end:var(--msg-segment-gap)}
+/* An open action row already adds ~28px; trim the margin so the boundary stays the same size. */
+.ref54-app .c54-thread .c54-message.is-actions-open{margin-block-end:max(4px,calc(var(--msg-turn-gap) - 28px))}
+.ref54-app .c54-thread .c54-message.is-actions-open.is-assistant:has(+ .c54-message.is-assistant),
+.ref54-app .c54-thread .c54-message.is-actions-open.is-user:has(+ .c54-message.is-user){margin-block-end:max(2px,calc(var(--msg-segment-gap) - 8px))}
+/* Classic: segments of one reply stack as a group. Joined edges get a tight corner, the group's outer corners stay round. */
+.ref54-app .c54-message.is-assistant>.c54-message-surface>.c54-prose>p,
+.ref54-app .c54-message.is-assistant>.c54-message-surface>.c54-prose-list,
+.ref54-app .c54-message.is-assistant>.c54-message-surface>.c54-message-after{border-radius:var(--msg-chunk-join) var(--msg-chunk-radius) var(--msg-chunk-radius) var(--msg-chunk-join)}
+.ref54-app :not(.c54-message.is-assistant)+.c54-message.is-assistant>.c54-message-surface>.c54-prose:first-child>p:first-child,
+.ref54-app :not(.c54-message.is-assistant)+.c54-message.is-assistant>.c54-message-surface>:first-child:not(.c54-prose){border-top-left-radius:var(--msg-chunk-radius)}
+.ref54-app .c54-message.is-assistant:not(:has(+ .c54-message.is-assistant))>.c54-message-surface>.c54-prose:last-child>p:last-child,
+.ref54-app .c54-message.is-assistant:not(:has(+ .c54-message.is-assistant))>.c54-message-surface>:last-child:not(.c54-prose){border-bottom-left-radius:var(--msg-chunk-radius)}
+@media (hover:none),(pointer:coarse){
+  :root{--msg-turn-gap:32px}
+  :root[data-message-style=plain]{--msg-turn-gap:28px}
+}

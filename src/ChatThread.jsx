@@ -4,6 +4,7 @@ import {
   ArrowRightOutlined, CheckOutlined, CommentOutlined, CopyOutlined,
   CloseOutlined, FileTextOutlined, MessageOutlined, PictureOutlined, ReloadOutlined, RollbackOutlined,
   SafetyCertificateOutlined, ThunderboltOutlined,
+  LikeOutlined, LikeFilled, DislikeOutlined, DislikeFilled,
 } from '@ant-design/icons';
 import './chat.css';
 import './message-actions.css';
@@ -34,13 +35,13 @@ function messageTimeDetails(message, session) {
   return { short: messageTime(message, session) === '时间未记录' ? '未记录' : messageTime(message, session), label: `${session?.when || '时间未记录'} · 样例会话时间，未提供逐条消息的日期与时刻` };
 }
 
-function MessageRow({ children, className, id, label, busy, renderActions }) {
+function MessageRow({ children, className, id, label, busy, pinned, renderActions }) {
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
   const [touchOpen, setTouchOpen] = useState(false);
   const [tooltipKeys, setTooltipKeys] = useState([]);
   const row = useRef(null), enterTimer = useRef(null), leaveTimer = useRef(null), holdTimer = useRef(null), press = useRef(null);
-  const open = hovered || focused || touchOpen || tooltipKeys.length > 0 || busy;
+  const open = hovered || focused || touchOpen || tooltipKeys.length > 0 || busy || !!pinned;
   const interactive = target => target instanceof Element && target.closest('button,a,input,textarea,select,summary,[role="button"],[role="radio"]');
   function cancelHold() { clearTimeout(holdTimer.current); holdTimer.current = null; }
   function tooltip(key, shown) { setTooltipKeys(keys => shown ? keys.includes(key) ? keys : [...keys, key] : keys.filter(item => item !== key)); }
@@ -187,6 +188,7 @@ export default function ChatThread({ session, onReply, onOpenWorkbench, onAnswer
   const [highlighted, setHighlighted] = useState(null);
   const [jumped, setJumped] = useState(null);
   const [regenerating, setRegenerating] = useState(null);
+  const [feedback, setFeedback] = useState({});
   const scroller = useRef(null);
   const stickToBottom=useRef(true),lastSession=useRef(null),lastLength=useRef(0);
   const [newBlocks,setNewBlocks]=useState(0);
@@ -241,7 +243,7 @@ export default function ChatThread({ session, onReply, onOpenWorkbench, onAnswer
     <div className="c54-thread-inner">
       {!messages.length ? <div className="c54-empty"><span className="c54-empty-mark"><ThunderboltOutlined /></span><Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={<><h2>从一个想法开始</h2><p>发一条消息，让 Lumi 帮你梳理、查找或推进事情。</p></>} /><Tag>本地交互预览</Tag></div> : <>
         <div className="c54-thread-date"><span />{session?.when || '最近'} · 示例会话<span /></div>
-        {messages.map((message, index) => {
+        {(() => { let lastAssistant = -1; messages.forEach((m, i) => { if (m.role !== 'user') lastAssistant = i; }); return messages.map((message, index) => {
           const user = message.role === 'user';
           const previous = messages[index - 1];
           const continuation = !user && previous?.role === 'assistant' && message.replyRunId && message.replyRunId === previous.replyRunId && !message.quote;
@@ -253,10 +255,14 @@ export default function ChatThread({ session, onReply, onOpenWorkbench, onAnswer
             <Tooltip title="回复这条消息" onOpenChange={shown => tooltip('reply', shown)}><Button type="text" size="small" icon={<CommentOutlined />} aria-label="回复这条消息" onClick={() => onReply?.({ index, author, role: message.role, text: plainMessage(message), full: plainMessage(message) })} /></Tooltip>
             {!user && !message.decision && onRegenerate && <Tooltip title={regenerating === index ? '正在重新生成 · 本地模拟' : '重新生成这条回复 · 本地模拟'} onOpenChange={shown => tooltip('regenerate', shown)}><Button type="text" size="small" icon={<ReloadOutlined />} loading={regenerating === index} aria-label={regenerating === index ? '正在重新生成回复' : '重新生成这条回复'} disabled={regenerating !== null && regenerating !== index} onClick={() => regenerate(index)} /></Tooltip>}
             {user && onWithdraw && <Tooltip title="先预览从这条消息开始的撤回范围" onOpenChange={shown => tooltip('withdraw', shown)}><Button type="text" size="small" icon={<RollbackOutlined />} aria-label="预览从这条消息开始的撤回范围" onClick={() => { keepOpen(); onWithdraw(index); }} /></Tooltip>}
+            {!user && !message.decision && (() => { const key = `${session?.id}:${index}`, value = feedback[key]; const set = v => setFeedback(current => ({ ...current, [key]: current[key] === v ? null : v })); return <>
+              <Tooltip title={value === 'up' ? '已标记有帮助 · 仅本地' : '有帮助 · 仅本地记录'} onOpenChange={shown => tooltip('up', shown)}><Button type="text" size="small" className={value === 'up' ? 'is-rated' : ''} icon={value === 'up' ? <LikeFilled /> : <LikeOutlined />} aria-pressed={value === 'up'} aria-label="这条回复有帮助" onClick={() => set('up')} /></Tooltip>
+              <Tooltip title={value === 'down' ? '已标记没帮助 · 仅本地' : '没帮助 · 仅本地记录'} onOpenChange={shown => tooltip('down', shown)}><Button type="text" size="small" className={value === 'down' ? 'is-rated' : ''} icon={value === 'down' ? <DislikeFilled /> : <DislikeOutlined />} aria-pressed={value === 'down'} aria-label="这条回复没帮助" onClick={() => set('down')} /></Tooltip>
+            </>; })()}
             <Tooltip title={time.label} placement="top" trigger={['hover', 'focus']} onOpenChange={shown => tooltip('time', shown)}><Button type="text" size="small" className="c54-message-time" onClick={event => event.currentTarget.focus({ preventScroll: true })} aria-label={`消息时间：${time.label}`}><time dateTime={time.dateTime}>{time.short}</time></Button></Tooltip>
             {message.revision > 1 && <span className="c54-message-version" aria-label={`本地模拟回复版本 ${message.revision}`} title="本地模拟重新生成版本">v{message.revision}</span>}
           </>;
-          return <MessageRow className={`c54-message ${user ? 'is-user' : 'is-assistant'} ${continuation?'is-continuation':''} ${message.arrived&&lastSession.current===session?.id&&Date.now()-message.deliveredAt<800?'is-arriving':''} ${message.shots?.length ? 'has-shots' : ''} ${highlighted === index || replyIndex === index ? 'is-quoting' : ''} ${jumped === index ? 'is-jump-target' : ''} ${regenerating === index ? 'is-regenerating' : ''}`} id={`msg-${index}`} key={`${session?.id}:${message.id || index}`} label={`${author}的消息`} busy={regenerating === index} renderActions={actions}>
+          return <MessageRow pinned={index === lastAssistant && !user} className={`c54-message ${user ? 'is-user' : 'is-assistant'} ${continuation?'is-continuation':''} ${message.arrived&&lastSession.current===session?.id&&Date.now()-message.deliveredAt<800?'is-arriving':''} ${message.shots?.length ? 'has-shots' : ''} ${highlighted === index || replyIndex === index ? 'is-quoting' : ''} ${jumped === index ? 'is-jump-target' : ''} ${regenerating === index ? 'is-regenerating' : ''}`} id={`msg-${index}`} key={`${session?.id}:${message.id || index}`} label={`${author}的消息`} busy={regenerating === index} renderActions={actions}>
             {message.status&&<Tag>{message.status}</Tag>}
             {message.quote && <button type="button" className="c54-quote-ghost" onClick={() => jumpTo(message.quote.index)} onPointerEnter={() => setHighlighted(message.quote.index)} onPointerLeave={() => setHighlighted(null)} onFocus={() => setHighlighted(message.quote.index)} onBlur={() => setHighlighted(null)} aria-label={`回到引用的${message.quote.author || 'Lumi'}消息：${message.quote.text}`}><span className="c54-quote-bubble">{message.quote.text}</span><svg className="c54-quote-elbow" viewBox="0 0 10 10" aria-hidden="true"><path d="M10 9L7.4 9C5.16 9 4.04 9 3.18 8.56C2.43 8.18 1.82 7.57 1.44 6.82C1 5.96 1 4.84 1 2.6L1 0" fill="none" stroke="currentColor" strokeWidth="2" /></svg></button>}
             <div className="c54-message-surface">
@@ -268,7 +274,7 @@ export default function ChatThread({ session, onReply, onOpenWorkbench, onAnswer
             </div>
             {message.shots?.length > 0 && <ShotDeck shots={message.shots} />}
           </MessageRow>;
-        })}
+        }); })()}
       </>}
         {replyActivity&&<div className="c54-reply-activity" role="status"><span className="c54-status-orbit is-busy" aria-hidden="true"/><span>{replyActivity.label}{replyActivity.queued>0&&` · ${replyActivity.queued} 条待回复`}</span></div>}
         {showToolPill&&tasks.length>0&&<div className="c54-work-capsules" aria-label="这段对话的工作状态">{tasks.map(task=>{const status=getTaskStatus(task,workflow);return <Tooltip key={task.id} title={status.detail}><button type="button" className={`c54-work-capsule tone-${status.tone}`} onClick={()=>{workflowActions.selectTask(task.id);onOpenWorkbench?.(task.status==='plan'?'plan':'runs');}} aria-label={`${task.title} · ${status.label}，查看工作`}><span className={`c54-status-orbit ${status.busy?'is-busy':''}`} aria-hidden="true"/><span className="c54-capsule-task">{task.title}</span><span className="c54-capsule-separator" aria-hidden="true">·</span><strong>{status.label}</strong><ArrowRightOutlined/></button></Tooltip>;})}</div>}

@@ -8,6 +8,7 @@ import {
 } from '@ant-design/icons';
 import './home.css';
 import './home-focus.css';
+import './home-refresh.css';
 import { notificationRecords, useWorkflowState } from './Workbench';
 import { getTaskStatus } from './work-status';
 

@@ -1,0 +1,63 @@
+/* Layout refresh for chat and projects. Scoped to .ref54-app; no component changes. */
+
+/* ---------- Chat ---------- */
+/* Message surfaces are driven by message-style.css tokens. */
+/* Quoted reply: a thin accent rule instead of a second floating bubble. */
+.ref54-app .c54-quote-bubble{background:transparent;border-left:2px solid color-mix(in srgb,var(--accent) 60%,transparent);border-radius:0;padding:2px 0 2px 12px;color:var(--muted)}
+/* Work status in the thread: a small card, the only accent block in the column. */
+.ref54-app .c54-work-capsule{background:color-mix(in srgb,var(--accent) 9%,var(--surface-panel));box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 30%,transparent);border-radius:12px;padding:9px 14px}
+/* Composer: same lifted surface as Home. */
+.ref54-app .c54-composer{background:var(--surface);box-shadow:0 18px 40px -24px rgba(0,0,0,.5),0 0 0 1px var(--line)}
+.ref54-app .c54-composer:focus-within{box-shadow:0 18px 40px -24px rgba(0,0,0,.5),0 0 0 1.5px var(--accent)}
+/* Left context column: one flat list with section labels, not two floating cards. */
+.ref54-app .ref54-context-panel{background:transparent;border:0;border-radius:0;padding:0 8px 14px}
+.ref54-app .ref54-context-panel+.ref54-context-panel{border-top:1px solid var(--line);padding-top:18px}
+.ref54-app .ref54-context-panel-heading h2{font-size:.6875rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.ref54-app .ref54-context-task{padding:8px 10px 10px;margin-inline:-10px;width:calc(100% + 20px);border-radius:10px}
+.ref54-app .ref54-context-task+.ref54-context-task{border-top:0;border-radius:10px;padding-top:8px}
+.ref54-app .ref54-context-task:first-child{background:color-mix(in srgb,var(--accent) 8%,transparent)}
+.ref54-app .ref54-context-recent nav>button{padding:8px 10px;margin-inline:-10px;width:calc(100% + 20px);border-radius:10px}
+.ref54-app .ref54-context-recent nav>button+button{border-top:0;border-radius:10px}
+@media(hover:hover){.ref54-app .ref54-context-recent nav>button:hover,.ref54-app .ref54-context-task:hover{background:var(--nav-track)}}
+/* Work rail: quieter, so it reads as tools rather than a second nav. */
+.ref54-app .l54-work-rail{background:transparent;box-shadow:0 0 0 1px var(--line);padding:6px 4px;gap:4px}
+.ref54-app .l54-work-rail .ant-btn{color:var(--muted)}
+
+/* ---------- Projects ---------- */
+/* Sidebar: no tinted slab; a plain list with a clear selected row. */
+.ref54-app .p54-sidebar{background:transparent;border-right:1px solid var(--line);border-radius:0;padding:12px 20px 20px 4px;margin-bottom:0}
+.ref54-app .p54-project-list>button{border-radius:12px;padding:12px 10px}
+.ref54-app .p54-project-list>button.selected{background:var(--surface);box-shadow:0 0 0 1px var(--line),inset 3px 0 0 var(--accent)}
+/* Overview: lead with the projects, top-aligned in a grid, instead of a centered empty-state hero. */
+.ref54-app .p54-main:has(.p54-overview){align-items:stretch;justify-content:flex-start}
+.ref54-app .p54-layout .p54-overview{max-width:none;margin:0;padding:12px 8px 40px;text-align:start;align-self:flex-start;display:flex;flex-direction:column;align-items:stretch}
+.ref54-app .p54-overview-icon{display:none}
+.ref54-app .p54-overview>h1,.ref54-app .p54-overview>h2{font-size:1.75rem;font-weight:500;letter-spacing:-.03em;margin:8px 0 6px;text-align:start}
+.ref54-app .p54-overview>p{text-align:start;color:var(--muted);margin:0 0 28px}
+.ref54-app .p54-layout .p54-overview-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;width:100%;max-width:1000px}
+.ref54-app .p54-overview-cards .ant-card{background:var(--surface-panel);box-shadow:0 0 0 1px var(--line);border-radius:18px;min-height:200px;text-align:start}
+.ref54-app .p54-overview-cards .ant-card:first-child{box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 40%,var(--line));background:color-mix(in srgb,var(--accent) 6%,var(--surface-panel))}
+.ref54-app .p54-overview-cards .ant-card-body{padding:20px 22px}
+.ref54-app .p54-overview-cards .ant-card .ant-btn{border-radius:10px}
+@media(hover:hover){.ref54-app .p54-overview-cards .ant-card:hover{box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 45%,var(--line))}}
+/* Detail: compact header, current work as cards, the conversation below on the same column. */
+.ref54-app .p54-project-head{padding-bottom:4px}
+.ref54-app .p54-git-line{border-bottom:1px solid var(--line);padding-bottom:14px}
+.ref54-app .p54-project-work{margin:16px 0 4px}
+.ref54-app .p54-layout .p54-work-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-top:10px}
+.ref54-app .p54-layout .p54-work-row{background:var(--surface-panel);box-shadow:0 0 0 1px var(--line);border-radius:14px;padding:14px 16px;align-items:flex-start}
+.ref54-app .p54-layout .p54-work-row:first-child{box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 40%,var(--line))}
+@media(hover:hover){.ref54-app .p54-layout .p54-work-row:hover{background:var(--surface)}}
+
+/* ---------- Mobile ---------- */
+@media(max-width:700px){
+ .ref54-app .p54-sidebar{border-right:0;padding:8px 4px}
+ .ref54-app .p54-layout .p54-overview-cards,.ref54-app .p54-layout .p54-work-list{grid-template-columns:minmax(0,1fr)}
+ .ref54-app .p54-project-list>button{background:var(--surface-panel);box-shadow:0 0 0 1px var(--line);margin-bottom:10px}
+ .ref54-app .p54-project-list>button:first-child{box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 40%,var(--line))}
+}
+.ref54-app .p54-layout .p54-work-list{padding:2px;margin-inline:-2px}
+.ref54-app .p54-layout .p54-overview-cards{margin-top:0}
+.ref54-app .p54-overview>p{margin-bottom:24px}
+.ref54-app .p54-overview-cards .ant-card{min-height:0}
+.ref54-app .p54-project-work{overflow:visible}.ref54-app .p54-layout .p54-work-list{padding-bottom:6px;overflow:visible}

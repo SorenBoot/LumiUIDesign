@@ -25,19 +25,19 @@ export function buildLumiPalette(preset,dark,background){
   const weatherColors=['#9aa8c0','#e5e8ed','#6783a5','#a4c1de','#a4b0bb'].map(rgb);
   const canvasBounds=bounds.flatMap(bound=>[bound,...weatherColors.map(color=>mix(color,bound,.035))]);
   canvasBounds.push(...canvasBounds.map(bound=>mix(dark?[230,235,242]:[39,47,61],bound,dark?.055:.045)));
-  const text=rgb(dark?'#f1f1ef':'#292f39'),secondary=rgb(dark?'#d2d6dd':'#4d5663');
-  const panelBase=rgb(dark?'#1e2530':'#fafaf9'),homeBase=rgb(dark?'#1b212b':'#fcfbf8');
-  const floatingBase=rgb(dark?'#222833':'#ffffff'),bubbleBase=rgb(dark?'#1d232e':'#ffffff'),user=rgb(v.user);
+  const text=rgb(v.text||(dark?'#f1f1ef':'#292f39')),secondary=rgb(dark?'#d2d6dd':'#4d5663');
+  const panelBase=rgb(v.panel||(dark?'#1e2530':'#fafaf9')),homeBase=rgb(v.home||(dark?'#1b212b':'#fcfbf8'));
+  const floatingBase=rgb(v.floating||(dark?'#222833':'#ffffff')),bubbleBase=rgb(v.bubble||(dark?'#1d232e':'#ffffff')),user=rgb(v.user);
   const panelAlpha=dark?.88:.91,homeAlpha=dark?.76:.89,floatingAlpha=dark?.96:.97,bubbleAlpha=dark?.87:.94;
   const contentBackgrounds=[surface,soft,...canvasBounds.flatMap(bg=>[mix(panelBase,bg,panelAlpha),mix(homeBase,bg,homeAlpha),mix(bubbleBase,bg,bubbleAlpha),mix(floatingBase,bg,floatingAlpha)])];
   const muted=readable(rgb(dark?'#bac2cf':'#596370'),contentBackgrounds,dark);
   const canvasText=readable(text,canvasBounds,dark),canvasMuted=readable(rgb(dark?'#c6cdd7':'#535e6d'),canvasBounds,dark);
-  const accentSoft=rgb(dark?'#344252':'#e0e8ef'),accent=readable(rgb(v.accent),[...contentBackgrounds,accentSoft],dark);
+  const accentSoft=rgb(v.accentSoft||(dark?'#344252':'#e0e8ef')),accent=readable(rgb(v.accent),[...contentBackgrounds,accentSoft],dark);
   const brandWarm=readable(rgb(dark?'#e4c59b':'#765830'),contentBackgrounds,dark);
   const canvasWarm=readable(rgb(dark?'#e4c59b':'#765830'),canvasBounds,dark);
-  const primary=rgb(dark?'#efede7':'#35475a'),primaryText=readable(rgb(dark?'#2e3239':'#ffffff'),[primary],!dark,7);
+  const primary=rgb(v.primary||(dark?'#efede7':'#35475a')),primaryText=readable(rgb(dark?'#2e3239':'#ffffff'),[primary],!dark,7);
   const navSelected=rgb(dark?'#f0ede7':'#ffffff'),navSelectedText=rgb('#292f39');
-  const infoSurface=rgb(dark?'#28394d':'#e5edf6'),infoText=rgb(dark?'#a6c7f1':'#315b87');
+  const infoSurface=rgb(v.infoSurface||(dark?'#28394d':'#e5edf6')),infoText=rgb(v.infoText||(dark?'#a6c7f1':'#315b87'));
   const border=readable(rgb(dark?'#778392':'#82909d'),[surface,soft],dark,3.1);
   const status=dark?{success:{text:'#a8d7bb',surface:'#21372c'},warning:{text:'#e8cc94',surface:'#3c3220'},error:{text:'#f0adb1',surface:'#40272c'}}:{success:{text:'#28613e',surface:'#e9f2ec'},warning:{text:'#73551f',surface:'#f5eedf'},error:{text:'#963f47',surface:'#f8e9eb'}};
   const colors=Object.fromEntries(Object.entries({surface,surfaceSoft:soft,page,text,secondary,muted,accent,accentSoft,userSurface:user,primary,primaryText,navSelected,navSelectedText,infoSurface,infoText,border,brandWarm,canvasWarm,canvasText,canvasMuted}).map(([key,value])=>[key,hex(value)]));
@@ -45,7 +45,7 @@ export function buildLumiPalette(preset,dark,background){
   const ambient=`${atmosphere?`linear-gradient(${rgba(atmosphere,.035)},${rgba(atmosphere,.035)}),`:''}radial-gradient(ellipse at 55% 0%,${rgba(glow[1],.04)},transparent 46%),radial-gradient(ellipse at 0% 45%,${rgba(glow[0],.075)},transparent 65%),radial-gradient(ellipse at 95% 95%,${rgba(dark?rgb('#aeb6cf'):rgb('#d4dce7'),.035)},transparent 58%),linear-gradient(140deg,${v.scene[0]},${v.scene[1]} 50%,${v.scene[2]})`;
   const vars={
     '--surface':colors.surface,'--surface-soft':colors.surfaceSoft,'--surface-panel':rgba(panelBase,panelAlpha),'--home-surface':rgba(homeBase,homeAlpha),'--surface-floating':rgba(floatingBase,floatingAlpha),
-    '--nav-track':rgba(rgb(dark?'#191e27':'#404856'),dark?.55:.09),'--home-soft':dark?'rgba(230,235,242,.055)':'rgba(39,47,61,.045)',
+    '--nav-track':rgba(rgb(v.navTrack||(dark?'#191e27':'#404856')),dark?.55:.09),'--home-soft':dark?'rgba(230,235,242,.055)':'rgba(39,47,61,.045)',
     '--nav-selected':colors.navSelected,'--nav-selected-text':colors.navSelectedText,
     '--text':colors.text,'--secondary':colors.secondary,'--muted':colors.muted,'--canvas-ink':colors.canvasText,'--canvas-muted':colors.canvasMuted,
     '--line':dark?'rgba(208,220,238,.14)':'rgba(67,77,93,.16)','--control-border':colors.border,
