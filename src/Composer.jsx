@@ -1,7 +1,7 @@
 import React,{useEffect,useRef,useState,useSyncExternalStore} from 'react';
 import {createPortal} from 'react-dom';
 import {Alert,App,Button,Dropdown,Input,InputNumber,Popover,Radio,Select,Slider,Tag,Tooltip,Progress,Descriptions} from 'antd';
-import {ArrowUpOutlined,AudioOutlined,PlusOutlined,RobotOutlined,SafetyOutlined,ThunderboltOutlined,FileOutlined,CloseOutlined,LinkOutlined,FolderOutlined,InfoCircleOutlined} from '@ant-design/icons';
+import {ArrowUpOutlined,AudioOutlined,CheckOutlined,DownOutlined,ExpandAltOutlined,ShrinkOutlined,PlusOutlined,RobotOutlined,SafetyOutlined,ThunderboltOutlined,FileOutlined,CloseOutlined,LinkOutlined,FolderOutlined,InfoCircleOutlined} from '@ant-design/icons';
 import {getSettingsSnapshot,subscribeSettings,isModelAvailable} from './Settings';
 
 const policies={ask:'请求批准',assistant:'助手自动批准',full:'完全批准'};
@@ -19,9 +19,8 @@ function useAttachmentDraft(scope){
  return [files,update];
 }
 
-function ComposerControlsIcon(){return <svg className="c54-controls-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 8.5h8.4M18.2 8.5H20M4 15.5h3.6M13.4 15.5H20"/><circle cx="15.4" cy="8.5" r="2.1"/><circle cx="10.6" cy="15.5" r="2.1"/></svg>;}
 
-export default function Composer({scope='chat',home=false,inlineReply=false,value,onChange,onSend,reply,onCancelReply,config,onConfig,onOpenSettings}){
+export default function Composer({scope='chat',home=false,inlineReply=false,project=null,value,onChange,onSend,reply,onCancelReply,config,onConfig,onOpenSettings}){
  const {message}=App.useApp();
  const settings=useSyncExternalStore(subscribeSettings,getSettingsSnapshot);
  const [expanded,setExpanded]=useState(false),[attachments,setAttachments]=useAttachmentDraft(scope);
@@ -137,6 +136,19 @@ export default function Composer({scope='chat',home=false,inlineReply=false,valu
   :<p>{reasoning?.kind==='fixed'?'固定推理，来源未提供档位。':reasoning?.kind==='none'?'此模型不支持调整推理。':'来源没有报告档位，保留来源默认。'}</p>}
   <small>仅影响后续消息，不改变最大输出预算。</small>
  </div>;
+ const levels=reasoning?.kind==='levels'?['来源默认',...reasoning.options]:null;
+ const levelIndex=levels?Math.max(0,levels.indexOf(config.reasoning||'来源默认')):0;
+ const reasoningLabel=!config.reasoning||config.reasoning==='来源默认'?'默认':customBudget?`${Math.round(Number(config.reasoning)/1000)}k`:config.reasoning;
+ const currentProvider=settings.providers.find(p=>p.id===model?.provider);
+ const modelContent=<div {...panelProps('model','模型与思考强度')}>
+  <div className="c54-mp-head"><strong>{currentProvider?.name||'模型来源'}</strong><span className="c54-mp-badge">{currentProvider?.type==='本地'?'本地':currentProvider?.type==='网关'?'网关':'API'}</span><Button type="text" size="small" onClick={()=>openSettings('models')}>管理</Button></div>
+  <div className="c54-mp-label">模型</div>
+  <div className="c54-mp-list" role="listbox" aria-label="选择模型">{models.map(m=>{const full=settings.models.find(x=>x.id===m.value);return <button type="button" role="option" aria-selected={m.value===config.model} key={m.value} disabled={m.disabled} className={`c54-mp-item ${m.value===config.model?'is-on':''}`} onClick={()=>onConfig({model:m.value,reasoning:'来源默认'})}><span className="c54-mp-name">{m.name}</span>{full?.capabilities.includes('vision')&&<span className="c54-mp-badge">视觉</span>}<span className="c54-mp-src">{m.disabled?'不可用':m.source}</span>{m.value===config.model&&<CheckOutlined className="c54-mp-check"/>}</button>;})}</div>
+  {levels?<div className="c54-mp-think"><div className="c54-mp-think-head"><span>思考强度</span><strong>{levels[levelIndex]==='来源默认'?'默认':levels[levelIndex]}</strong><kbd>Ctrl T</kbd></div>
+   <Slider className="c54-think-slider" ariaLabelForHandle="思考强度" ariaValueTextFormatterForHandle={i=>levels[i]} min={0} max={levels.length-1} step={1} value={levelIndex} disabled={!modelValid} onChange={i=>onConfig({reasoning:levels[i]})} tooltip={{open:false}}/></div>
+  :reasoning?.kind==='budget'?<p className="c54-mp-note">推理预算在输入框的「推理」里调整。</p>
+  :<p className="c54-mp-note">{reasoning?.kind==='none'?'此模型不支持调整思考强度。':'思考强度由来源决定。'}</p>}
+ </div>;
  const approvalContent=<div {...panelProps('approval','批准策略')}>
   <strong>批准策略</strong><p>当前会话 · 模拟偏好</p>
   <Radio.Group aria-label="批准策略" value={strategy} onChange={event=>setStrategy(event.target.value)} className="c54-strategies">
@@ -154,7 +166,8 @@ export default function Composer({scope='chat',home=false,inlineReply=false,valu
 
  return <>{!inlineReply&&createPortal(<div className="c54-reply-veil" data-active={!!reply} aria-hidden="true" onClick={()=>{onCancelReply?.();input.current?.focus({preventScroll:true});}}/>,document.body)}<div className={`c54-wrap ${home?'is-home':''} ${reply&&!inlineReply?'is-replying':''}`}>
   {reply&&!inlineReply&&<div className="c54-reply-ghost" role="region" aria-label="正在回复这条消息"><div className="c54-reply-bubble"><div className="c54-reply-heading"><span><LinkOutlined/> 回复这条消息</span><Button type="text" size="small" icon={<CloseOutlined/>} aria-label="取消引用" onClick={onCancelReply}/></div><p>{reply.full||reply.text}</p></div></div>}
-  <div className={`c54-composer ${expanded?'is-expanded':''}`}>
+  {project&&<div className="c54-project-tab"><FolderOutlined/><span>{project}</span></div>}
+  <div className={`c54-composer ${expanded?'is-expanded':''} ${project?'has-project':''}`}>
   {reply&&inlineReply&&<div className="c54-reply" aria-live="polite"><span><LinkOutlined/><b>引用消息</b><span>{reply.text}</span></span><Button type="text" size="small" icon={<CloseOutlined/>} aria-label="取消引用" onClick={onCancelReply}/></div>}
   {!!attachments.length&&<div className="c54-attachments">{attachments.map(file=><Tag key={file} closeIcon onClose={()=>setAttachments(current=>current.filter(item=>item!==file))}><FileOutlined/> {file} · 示例</Tag>)}</div>}
   {!valid&&<Alert type="warning" showIcon title={!agentValid?'当前助手不可用':'当前模型不可用'} action={<Button size="small" type="text" onClick={recoverSelection}>{home?'检查配置':!agentValid?'更换助手':'更换模型'}</Button>}/>}
@@ -162,22 +175,22 @@ export default function Composer({scope='chat',home=false,inlineReply=false,valu
    <Dropdown trigger={['click']} open={attachmentOpen} onOpenChange={open=>{if(open){closePopover();setSelectOpen(null);}setAttachmentOpen(open);}} menu={{items:[{key:'notes.md',icon:<FileOutlined/>,label:'添加示例文档'},{key:'screen.png',icon:<FileOutlined/>,label:'添加示例截图'},{key:'project',icon:<FolderOutlined/>,label:'引用当前项目'}],onClick:({key})=>{setAttachments(current=>current.includes(key)?current:[...current,key]);setAttachmentOpen(false);input.current?.focus();}}}>
     <Button type="text" icon={<PlusOutlined/>} aria-label="添加附件或上下文" className="c54-add"/>
    </Dropdown>
-   <Input.TextArea ref={input} id={`${scope}-input`} aria-label={home?'让 Lumi 做点什么':'输入消息'} placeholder={reply?'回复消息':home?'有什么想法，交给 Lumi…':'继续这段对话…'} value={value} onChange={event=>onChange(event.target.value)} variant="borderless" autoSize={{minRows:1,maxRows:6}} onKeyDown={event=>{if(event.key==='Enter'&&!event.shiftKey&&!event.nativeEvent.isComposing&&event.nativeEvent.keyCode!==229){event.preventDefault();send();}}}/>
+   <Input.TextArea ref={input} id={`${scope}-input`} aria-label={home?'让 Lumi 做点什么':'输入消息'} placeholder={reply?'回复消息':home?'有什么想法，交给 Lumi…':expanded?'向 Lumi 提问，@ 引用项目或文件，Shift+Enter 换行':'问 Lumi 任何事…'} value={value} onChange={event=>onChange(event.target.value)} variant="borderless" autoSize={{minRows:expanded?2:1,maxRows:expanded?8:4}} onKeyDown={event=>{if(event.key==='Enter'&&!event.shiftKey&&!event.nativeEvent.isComposing&&event.nativeEvent.keyCode!==229){event.preventDefault();send();}}}/>
   </div>
   <div className="c54-reveal" data-open={expanded} aria-hidden={!expanded} ref={tools}><div className="c54-clip"><div className="c54-tools" id={`${scope}-tools`}>
    <div className="c54-selects">
    <Select {...selectProps('mode')} aria-label="工作模式" value={config.mode} onChange={mode=>{onConfig({mode});setSelectOpen(null);}} options={[{value:'plan',label:'Plan · 规划'},{value:'execute',label:'Build · 执行'}]} className="c54-mode" variant="filled"/>
    <Select {...selectProps('agent')} ref={agentSelect} aria-label="执行助手" value={config.agent} onChange={agent=>{onConfig({agent});setSelectOpen(null);}} options={agentOptions} showSearch optionFilterProp="label" prefix={<RobotOutlined/>} variant="borderless" popupMatchSelectWidth={260} className="c54-agent" status={!agentValid?'error':undefined}/>
-   {nativeModel?<Tag className="c54-native-model" icon={<RobotOutlined/>}>{agent.model||'由 Agent 管理'} · Agent 模型</Tag>:<Tooltip title={`${model?.name||'未选择模型'} · ${providerName(model?.provider)} · ${model?.modelId||'未报告标识'}`}><Select {...selectProps('model')} aria-label="模型与提供商" value={config.model} onChange={model=>{onConfig({model,reasoning:'来源默认'});setSelectOpen(null);}} options={models} showSearch optionFilterProp="label" variant="borderless" popupMatchSelectWidth={360} className="c54-model" status={!modelValid?'error':undefined} optionRender={({data})=><div className="c54-model-option"><strong>{data.name}</strong><small>{data.source} · {data.disabled?'不可用':'就绪'}<br/>{data.modelId}</small></div>} popupRender={menu=><>{menu}<Button type="text" block onClick={()=>openSettings('models')}>管理模型与来源</Button></>}/></Tooltip>}
+   {nativeModel?<Tag className="c54-native-model" icon={<RobotOutlined/>}>{agent.model||'由 Agent 管理'} · Agent 模型</Tag>:<Popover trigger="click" open={expanded&&popover==='model'} onOpenChange={setPop('model')} afterOpenChange={afterPop('model')} content={modelContent} placement="topRight" destroyOnHidden rootClassName="c54-model-pop"><Button {...triggerProps('model')} type="text" className={`c54-model-chip ${!modelValid?'is-invalid':''}`} aria-label={`模型：${model?.name||'未选择'}，思考强度：${reasoningLabel}`}><b>{model?.name||'选择模型'}</b><span>{reasoningLabel}</span><DownOutlined/></Button></Popover>}
    </div>
    <div className="c54-actions">
-   {!nativeModel&&<Popover trigger="click" open={expanded&&popover==='reason'} onOpenChange={setPop('reason')} afterOpenChange={afterPop('reason')} content={reasoningContent} placement="top" destroyOnHidden><Button {...triggerProps('reason')} type="text" size="small" icon={<ThunderboltOutlined/>} aria-label="推理设置">{!config.reasoning||config.reasoning==='来源默认'?'推理':customBudget?`${Number(config.reasoning).toLocaleString()} Token`:config.reasoning}</Button></Popover>}
+   {!nativeModel&&reasoning?.kind==='budget'&&<Popover trigger="click" open={expanded&&popover==='reason'} onOpenChange={setPop('reason')} afterOpenChange={afterPop('reason')} content={reasoningContent} placement="top" destroyOnHidden><Button {...triggerProps('reason')} type="text" size="small" icon={<ThunderboltOutlined/>} aria-label="推理设置">{!config.reasoning||config.reasoning==='来源默认'?'推理':customBudget?`${Number(config.reasoning).toLocaleString()} Token`:config.reasoning}</Button></Popover>}
    <Popover trigger="click" open={expanded&&popover==='approval'} onOpenChange={setPop('approval')} afterOpenChange={afterPop('approval')} content={approvalContent} placement="top" destroyOnHidden><Button {...triggerProps('approval')} type="text" size="small" icon={<SafetyOutlined/>}>{policies[config.approval||'ask']}</Button></Popover>
-   <Popover trigger="click" open={expanded&&popover==='context'} onOpenChange={setPop('context')} afterOpenChange={afterPop('context')} content={contextContent} placement="top" destroyOnHidden><Button {...triggerProps('context')} type="text" size="small" icon={<InfoCircleOutlined/>} aria-label="上下文占用" className="c54-context">62%</Button></Popover>
+   <Popover trigger="click" open={expanded&&popover==='context'} onOpenChange={setPop('context')} afterOpenChange={afterPop('context')} content={contextContent} placement="top" destroyOnHidden><Button {...triggerProps('context')} type="text" size="small" aria-label="上下文占用 62%（示例）" className="c54-context"><i className="c54-ring" style={{'--p':62}} aria-hidden="true"/></Button></Popover>
    </div>
   </div></div></div>
   <div className="c54-end">
-   {!home&&<Tooltip title={expanded?'收起会话选项':'展开会话选项'}><Button ref={toggle} type="text" icon={<ComposerControlsIcon/>} aria-label={expanded?'收起会话选项':'展开会话选项'} aria-expanded={expanded} aria-controls={`${scope}-tools`} className={expanded?'is-active':''} onClick={toggleSettings}/></Tooltip>}
+   {!home&&<Tooltip title={expanded?'收起':'展开'}><Button ref={toggle} type="text" icon={expanded?<ShrinkOutlined/>:<ExpandAltOutlined/>} aria-label={expanded?'收起输入框':'展开输入框'} aria-expanded={expanded} aria-controls={`${scope}-tools`} className={expanded?'is-active':''} onClick={toggleSettings}/></Tooltip>}
    <Tooltip title="语音输入"><Button type="text" icon={<AudioOutlined/>} aria-label="语音输入" onClick={()=>message.info('语音输入为演示入口，未开启麦克风')}/></Tooltip>
    <Tooltip title="发送 · Enter"><Button type="primary" icon={<ArrowUpOutlined/>} aria-label="发送消息" disabled={(!value.trim()&&!attachments.length)||!valid||budgetInvalid} onClick={send}/></Tooltip>
   </div>

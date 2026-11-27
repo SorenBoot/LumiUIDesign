@@ -1,0 +1,90 @@
+/* Composer v2: borderless surfaces, a manual compact/expanded toggle, inner scrolling.
+   Compact = one pill. Expanded = rounded panel, text on top, controls in one row underneath. */
+.ref54-app .c54-composer,
+.ref54-app .h54-light-home .c54-composer{background:var(--surface);border:0;border-radius:28px;padding:7px 8px 7px 10px;
+ box-shadow:0 1px 0 color-mix(in srgb,var(--text) 5%,transparent) inset,0 16px 36px -16px rgba(0,0,0,.42),0 0 0 1px color-mix(in srgb,var(--text) 6%,transparent);backdrop-filter:none}
+:root[data-theme=light] .ref54-app .c54-composer{box-shadow:0 1px 2px rgba(30,50,80,.05),0 14px 32px -14px rgba(30,60,110,.26),0 0 0 1px rgba(30,50,80,.05)}
+/* No focus lines on the box itself: focus reads as a deeper shadow. */
+.ref54-app .c54-composer:focus-within,.ref54-app .h54-light-home .c54-composer:focus-within{box-shadow:0 1px 0 color-mix(in srgb,var(--text) 6%,transparent) inset,0 20px 44px -16px rgba(0,0,0,.5),0 0 0 1px color-mix(in srgb,var(--text) 10%,transparent)}
+:root[data-theme=light] .ref54-app .c54-composer:focus-within{box-shadow:0 1px 2px rgba(30,50,80,.06),0 18px 40px -14px rgba(30,60,110,.34),0 0 0 1px rgba(30,50,80,.08)}
+.ref54-app .c54-composer:has(.c54-input-line textarea:focus-visible){outline:0}
+.ref54-app .c54-input-line>.ant-input,.ref54-app .c54-composer .ant-input{box-shadow:none!important;border:0!important;outline:0}
+/* Inner scrolling: thin, theme-tinted, no track. */
+.ref54-app .c54-input-line textarea{scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--text) 22%,transparent) transparent}
+.ref54-app .c54-input-line textarea::-webkit-scrollbar{width:6px}
+.ref54-app .c54-input-line textarea::-webkit-scrollbar-thumb{border-radius:6px;background:color-mix(in srgb,var(--text) 22%,transparent)}
+.ref54-app .c54-input-line textarea::-webkit-scrollbar-track{background:transparent}
+/* Send: round, accent when ready, quiet when empty. */
+.ref54-app .c54-end>.ant-btn-primary,.ref54-app .h54-light-home .c54-end>.ant-btn-primary{border-radius:50%;background:var(--accent);color:var(--on-accent);border:0;box-shadow:none}
+.ref54-app .c54-end>.ant-btn-primary:disabled{background:color-mix(in srgb,var(--accent) 18%,var(--surface));color:color-mix(in srgb,var(--accent) 60%,var(--muted));opacity:1}
+.ref54-app .c54-end>.ant-btn-text{color:var(--muted)}
+.ref54-app .c54-end>.ant-btn.is-active{background:transparent;color:var(--text)}
+
+/* Expanded panel */
+.ref54-app .c54-composer.is-expanded{display:flex;flex-wrap:wrap;align-items:center;border-radius:22px;padding:14px 12px 10px 14px;row-gap:10px}
+.ref54-app .c54-composer.is-expanded>*{width:100%}
+.ref54-app .c54-composer.is-expanded>.c54-input-line{display:contents}
+.ref54-app .c54-composer.is-expanded .c54-input-line>.ant-input{order:1;width:100%;flex:0 0 100%;padding:2px 40px 0 6px;font-size:14.5px;line-height:1.65}
+.ref54-app .c54-composer.is-expanded .c54-input-line>.c54-add{order:2;width:32px;height:32px;flex:none;border-radius:50%;box-shadow:0 0 0 1px color-mix(in srgb,var(--text) 10%,transparent)}
+.ref54-app .c54-composer.is-expanded>.c54-reveal{order:3;width:auto;flex:1 1 0;min-width:0;margin-left:8px}
+.ref54-app .c54-composer.is-expanded>.c54-end{order:4;width:auto;position:static;padding:0}
+.ref54-app .c54-composer.is-expanded .c54-end>.ant-btn[aria-expanded]{position:absolute;top:10px;right:10px;width:30px;height:30px}
+.ref54-app .c54-composer.is-expanded .c54-tools{flex-direction:row;align-items:center;gap:6px;padding:0;margin:0;flex-wrap:nowrap}
+.ref54-app .c54-composer.is-expanded .c54-selects{flex-wrap:nowrap;gap:4px;align-items:center}
+.ref54-app .c54-composer.is-expanded .c54-actions{padding-inline-end:0;margin-left:auto;min-height:0;gap:2px;display:flex;align-items:center}
+/* Mode as an accent chip, agent as quiet text */
+.ref54-app .c54-tools .c54-mode{width:auto!important;flex:none!important}
+.ref54-app .c54-tools .c54-mode .ant-select-selector,.ref54-app .c54-tools .c54-mode.ant-select{background:var(--accent-soft)!important;border-radius:10px!important;border:0!important;box-shadow:none!important}
+.ref54-app .c54-tools .c54-mode .ant-select-selection-item,.ref54-app .c54-tools .c54-mode .ant-select-content,.ref54-app .c54-tools .c54-mode .ant-select-arrow{color:var(--accent)!important;font-weight:600}
+.ref54-app .c54-tools .c54-agent{width:auto!important;flex:0 1 auto!important;max-width:170px}
+/* Model chip + context ring */
+.ref54-app .c54-model-chip{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 9px;border-radius:10px;font-size:12.5px;color:var(--secondary,var(--muted))}
+.ref54-app .c54-model-chip b{color:var(--text);font-weight:650;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ref54-app .c54-model-chip[aria-expanded=true]{background:color-mix(in srgb,var(--text) 6%,transparent)}
+.ref54-app .c54-model-chip.is-invalid b{color:var(--status-error-text,#c0453a)}
+.ref54-app .c54-model-chip .anticon{font-size:10px;color:var(--muted)}
+.ref54-app .c54-context{width:30px;height:30px;padding:0;display:inline-grid;place-items:center}
+.c54-ring{display:block;width:18px;height:18px;border-radius:50%;background:conic-gradient(var(--accent) calc(var(--p) * 1%),color-mix(in srgb,var(--text) 14%,transparent) 0);
+ -webkit-mask:radial-gradient(circle,transparent 5.5px,#000 6px);mask:radial-gradient(circle,transparent 5.5px,#000 6px)}
+/* Project tab sitting on top of the composer */
+.ref54-app .c54-project-tab{display:inline-flex;align-items:center;gap:7px;margin:0 0 -8px 18px;padding:6px 12px 13px;border-radius:14px 14px 0 0;font-size:12px;font-weight:600;color:var(--secondary,var(--text));
+ background:color-mix(in srgb,var(--surface) 70%,var(--accent-soft));box-shadow:0 0 0 1px color-mix(in srgb,var(--text) 7%,transparent);position:relative;z-index:0}
+.ref54-app .c54-project-tab .anticon{color:var(--accent)}
+.ref54-app .c54-project-tab+.c54-composer{position:relative;z-index:1}
+
+/* Model popover: provider header, model list, thinking strength */
+.c54-model-pop .ant-popover-inner{padding:8px!important;border-radius:18px!important;width:300px}
+.c54-mp-head{display:flex;align-items:center;gap:8px;padding:6px 8px 10px;border-bottom:1px solid var(--line);margin-bottom:6px}
+.c54-mp-head strong{font-size:13px}
+.c54-mp-head .ant-btn{margin-left:auto;font-size:12px;color:var(--muted)}
+.c54-mp-badge{font-size:10px;font-weight:600;padding:1px 6px;border-radius:6px;color:var(--muted);background:color-mix(in srgb,var(--text) 5%,transparent);box-shadow:0 0 0 1px var(--line)}
+.c54-mp-label{font-size:11px;color:var(--muted);padding:4px 8px}
+.c54-mp-list{display:flex;flex-direction:column;max-height:220px;overflow:auto;scrollbar-width:thin}
+.c54-mp-item{display:flex;align-items:center;gap:8px;width:100%;padding:8px;border:0;border-radius:10px;background:transparent;color:var(--text);font:inherit;font-size:13px;text-align:left;cursor:pointer}
+.c54-mp-item:hover:not(:disabled){background:color-mix(in srgb,var(--text) 6%,transparent)}
+.c54-mp-item.is-on{background:color-mix(in srgb,var(--text) 7%,transparent);font-weight:600}
+.c54-mp-item:disabled{opacity:.45;cursor:not-allowed}
+.c54-mp-item:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.c54-mp-src{margin-left:auto;font-size:11px;color:var(--muted);font-weight:400}
+.c54-mp-check{color:var(--accent)}
+.c54-mp-think{border-top:1px solid var(--line);margin-top:6px;padding:12px 8px 2px}
+.c54-mp-think-head{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--muted)}
+.c54-mp-think-head strong{color:var(--text);font-size:12.5px}
+.c54-mp-think-head kbd{margin-left:auto;font:inherit;font-size:10px;padding:1px 6px;border-radius:6px;box-shadow:0 0 0 1px var(--line)}
+.c54-think-slider.ant-slider{margin:12px 4px 6px}
+.c54-think-slider .ant-slider-rail{height:10px;border-radius:10px;background:color-mix(in srgb,var(--text) 8%,transparent)}
+.c54-think-slider .ant-slider-track{height:10px;border-radius:10px;background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 45%,var(--surface)),var(--accent))}
+.c54-think-slider .ant-slider-handle{inset-block-start:3px}
+.c54-think-slider .ant-slider-handle::after{width:14px!important;height:14px!important;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.35)!important}
+.c54-think-slider .ant-slider-step{display:none}
+.c54-mp-note{font-size:11.5px;color:var(--muted);padding:8px;margin:0;border-top:1px solid var(--line)}
+.c54-mp-more{font-size:12px;color:var(--secondary,var(--text));border-top:1px solid var(--line);border-radius:0}
+/* Narrow composer: keep one row by dropping labels before controls */
+@container composer (max-width:640px){
+ .ref54-app .c54-composer.is-expanded .c54-actions .ant-btn>span:not(.anticon){display:none}
+ .ref54-app .c54-tools .c54-agent{display:none}
+}
+@container composer (max-width:440px){
+ .ref54-app .c54-composer.is-expanded .c54-model-chip span{display:none}
+ .ref54-app .c54-composer.is-expanded>.c54-reveal{margin-left:4px}
+}

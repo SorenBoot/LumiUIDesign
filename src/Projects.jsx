@@ -1,6 +1,6 @@
 import React,{useState} from 'react';
 import {App,Button,Card,Form,Input,Tag,Tooltip} from 'antd';
-import {ArrowLeftOutlined,ArrowRightOutlined,ArrowUpOutlined,BranchesOutlined,DownOutlined,FolderOutlined,PlusOutlined} from '@ant-design/icons';
+import {ArrowLeftOutlined,ArrowRightOutlined,ArrowUpOutlined,BranchesOutlined,FileTextOutlined,FolderOutlined,PlusOutlined} from '@ant-design/icons';
 import Composer from './Composer';
 import ChatThread from './ChatThread';
 import {useWorkflowState,workflowActions} from './Workbench';
@@ -38,14 +38,17 @@ export default function Projects({showToolPill=true,projects,onAdd,selected,onSe
      <Button type="primary" htmlType="submit">创建示例项目</Button>
     </Form>
    </div>:project?<>
-    <header className="p54-project-head"><div><Button type="text" className="p54-back" icon={<ArrowLeftOutlined/>} aria-label="返回项目目录" onClick={()=>onSelect(null)}/><span className="p54-folder"><FolderOutlined/></span><div><h1>{project.name}</h1><small>{project.path} · 示例路径</small></div></div><Button type="text" onClick={()=>onContinue(project.id)}>在聊天中继续 <ArrowUpOutlined rotate={45}/></Button></header>
-    <div className="p54-git-line">{project.git?<><Tag icon={<BranchesOutlined/>}>{project.git.branch}</Tag><span>{project.git.dirty} 处改动</span><span>领先 {project.git.ahead} · 落后 {project.git.behind}</span><span>最近提交 {project.git.commit}</span></>:<Tag>未识别 Git 仓库</Tag>}<Button type="link" size="small" onClick={()=>onOpenWorkbench('artifacts')}>查看成果</Button></div>
-    {tasks.length?<details className="p54-project-work" key={project.id} open>
-     <summary><span>当前工作 <span className="p54-work-count">{tasks.length}</span></span><span className="p54-work-summary-text">{getProjectSummary(project,workflow).label}</span><DownOutlined/></summary>
-     <div className="p54-work-list" aria-label={`${project.name}的工作状态`}>{tasks.map(task=>{const status=getTaskStatus(task,workflow);return <button type="button" className="p54-work-row" key={task.id} onClick={()=>openWork(task)} aria-label={`查看${task.title}，${status.label}`}><span className="p54-work-copy"><span className="p54-work-title">{task.title}</span><span className="p54-work-detail">{status.detail}</span></span><StatusPill status={status}/><ArrowRightOutlined className="p54-work-arrow"/></button>;})}</div>
-    </details>:<div className="p54-no-work"><StatusPill status={getProjectSummary(project,workflow)}/><span>从下面的对话开始</span></div>}
+    <header className="p54-project-head">
+     <Button type="text" className="p54-back" icon={<ArrowLeftOutlined/>} aria-label="返回项目目录" onClick={()=>onSelect(null)}/>
+     <span className="p54-folder p54-head-icon"><FolderOutlined/></span>
+     <div className="p54-head-copy"><h1>{project.name}</h1>
+      <div className="p54-chips"><span className="p54-chip" title="示例路径"><FolderOutlined/>{project.path}</span>{project.git?<span className="p54-chip"><BranchesOutlined/>{project.git.branch} · {project.git.dirty?`${project.git.dirty} 处改动`:'干净'}</span>:<span className="p54-chip">未识别 Git</span>}<span className="p54-chip">{sessions.filter(s=>s.project===project.id).length} 段对话</span></div>
+     </div>
+     <div className="p54-head-actions"><Button icon={<FileTextOutlined/>} onClick={()=>onOpenWorkbench('artifacts')}>成果</Button><Button onClick={()=>onContinue(project.id)}>在聊天中继续 <ArrowUpOutlined rotate={45}/></Button></div>
+    </header>
+    {tasks.length?<div className="p54-work-strip" aria-label={`${project.name}的工作状态`}>{tasks.slice(0,3).map(task=>{const status=getTaskStatus(task,workflow);return <button type="button" className={`p54-work-card tone-${status.tone}`} key={task.id} onClick={()=>openWork(task)} aria-label={`查看${task.title}，${status.label}`}><span className="p54-work-icon" aria-hidden="true"><span className={`p54-status-mark ${status.busy?'is-busy':''}`}/></span><span className="p54-work-copy"><span className="p54-work-title">{task.title}</span><span className="p54-work-detail">{status.label} · {status.detail}</span></span><ArrowRightOutlined className="p54-work-arrow"/></button>;})}{tasks.length>3&&<span className="p54-work-more">+{tasks.length-3}</span>}</div>:null}
     <div className="p54-thread"><ChatThread showToolPill={showToolPill} session={session} replyActivity={replyActivities[`project-${project.id}`]} replyIndex={reply?.index} onRegenerate={index=>onRegenerate?.(project.id,index)} onReply={setReply} onOpenWorkbench={onOpenWorkbench} onAnswer={()=>{}} onWithdraw={()=>message.info('项目撤回需先在完整聊天中预览范围')}/></div>
-    <Composer inlineReply scope={`project-${project.id}`} value={draft} onChange={onDraft} config={config} onConfig={onConfig} reply={reply} onCancelReply={()=>setReply(null)} onOpenSettings={onOpenSettings} onSend={(text,files)=>{onSend(project.id,text,files,reply);setReply(null);}}/>
+    <Composer inlineReply project={project.name} scope={`project-${project.id}`} value={draft} onChange={onDraft} config={config} onConfig={onConfig} reply={reply} onCancelReply={()=>setReply(null)} onOpenSettings={onOpenSettings} onSend={(text,files)=>{onSend(project.id,text,files,reply);setReply(null);}}/>
    </>:<div className="p54-overview">
     <span className="p54-overview-icon"><FolderOutlined/></span><h2>每项工作，都有进展</h2><p>打开项目，接着聊，也能随时看到工作停在哪一步。</p>
     <div className="p54-overview-cards">{projects.map(p=>{const summary=getProjectSummary(p,workflow);return <Card key={p.id} hoverable variant="borderless"><FolderOutlined/><h3>{p.name}</h3><div className="p54-overview-status"><StatusPill status={summary}/></div><p>{summary.count} 项工作 · {sessions.filter(s=>s.project===p.id).length} 段示例对话</p><Button onClick={()=>selectProject(p.id)}>打开项目</Button></Card>;})}</div>

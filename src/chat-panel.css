@@ -1,0 +1,16 @@
+/* Chat page right panel: Lumi-made panels, or a greeting with the live date and time. */
+.cp54-panel{position:relative;display:flex;flex-direction:column;min-height:0;height:100%;border-radius:22px;padding:30px 28px 26px;overflow:hidden;
+ background:color-mix(in srgb,var(--surface) 55%,transparent);box-shadow:0 0 0 1px var(--line,rgba(127,127,127,.12))}
+.cp54-panel::before{content:"";position:absolute;right:-70px;top:-70px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--accent) 16%,transparent),transparent 70%);pointer-events:none}
+.cp54-greet{position:relative}
+.cp54-greet h2{font-size:1.25rem;font-weight:650;line-height:1.4;margin:0 0 6px;color:var(--text)}
+.cp54-greet p{font-size:.8125rem;line-height:1.65;margin:0;color:var(--muted)}
+.cp54-clock{margin-top:auto;display:flex;flex-direction:column;position:relative}
+.cp54-weekday{font-size:.8125rem;color:var(--muted)}
+.cp54-date{font-size:1.875rem;font-weight:650;letter-spacing:-.01em;margin:4px 0 0;color:var(--text)}
+.cp54-time{font-size:2.875rem;font-weight:300;letter-spacing:-.02em;font-variant-numeric:tabular-nums;color:var(--secondary,var(--text))}
+.cp54-hint{position:relative;display:flex;gap:6px;align-items:center;margin:20px 0 0;font-size:.6875rem;color:var(--muted)}
+.cp54-panel.has-panels{background:transparent;box-shadow:none;padding:0;gap:12px}
+.cp54-panel.has-panels::before{display:none}
+.cp54-card{border-radius:20px;background:var(--surface);padding:16px;box-shadow:0 0 0 1px var(--line,rgba(127,127,127,.12))}
+.cp54-foot{font-size:.6875rem;color:var(--muted);padding:2px 6px}
